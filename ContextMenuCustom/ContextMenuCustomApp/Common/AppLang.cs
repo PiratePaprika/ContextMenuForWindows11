@@ -165,7 +165,7 @@
         public string SettingOtherRestart { get; set; } = "Restart App";
 
         //update tip
-        public string UpdateTipTitle { get; set; } = "V5.5";
+        public string UpdateTipTitle { get; set; } = "V5.7";
         public string UpdateTipCloseButton { get; set; } = "Close";
         public string UpdateTip1 { get; set; } = "ChangeLog";
         public string UpdateTip1Content { get; set; } = "1. Add ARM64 package for Win Store\r\n2. Add more PARAM for multiple files\r\n3. Optimize UI \r\n4. Optimize language\r\n5. Optimize menu json format\r\n6. Other fix";

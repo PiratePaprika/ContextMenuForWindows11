@@ -14,7 +14,7 @@
 
   <Identity
     Name="7061touchwp.CustomContextMenu"
-    Publisher="CN=ikas-mc-dev"
+    Publisher="CN=289FD761-763C-412C-A71B-BE59DC5ACE3A"
     Version="5.6.0.0" />
 
   <Properties>

@@ -129,20 +129,22 @@ bool CustomSubExplorerCommand::Accept(bool multipleFiles, FileType fileType, con
 }
 
 IFACEMETHODIMP CustomSubExplorerCommand::GetIcon(_In_opt_ IShellItemArray* items, _Outptr_result_nullonfailure_ PWSTR* icon) {
-	*icon = nullptr;
+	wil::assign_null_to_opt_param(icon);
 
-	if (m_theme_type == ThemeType::Dark && !_icon_dark.empty()) {
-		auto iconPath = wil::make_cotaskmem_string_nothrow(_icon_dark.c_str());
-		RETURN_IF_NULL_ALLOC(iconPath);
-		*icon = iconPath.release();
-		return S_OK;
+	std::wstring_view iconPath{ m_theme_type == ThemeType::Dark && _icon_dark.empty() ? _icon: _icon_dark };
+	if (iconPath.find(L"%") != std::string::npos)
+	{
+		wil::unique_cotaskmem_string path{};
+		if (S_OK == wil::ExpandEnvironmentStringsW(iconPath.data(), path))
+		{
+			*icon=path.release();
+			return S_OK;
+		}
 	}
-
-	//TODO light or default
-	if (!_icon.empty()) {
-		auto iconPath = wil::make_cotaskmem_string_nothrow(_icon.c_str());
-		RETURN_IF_NULL_ALLOC(iconPath);
-		*icon = iconPath.release();
+	else if(!iconPath.empty())
+	{
+		auto path{ wil::make_cotaskmem_string(iconPath.data(), iconPath.size()) };
+		*icon=path.release();
 		return S_OK;
 	}
 
@@ -150,7 +152,7 @@ IFACEMETHODIMP CustomSubExplorerCommand::GetIcon(_In_opt_ IShellItemArray* items
 }
 
 IFACEMETHODIMP CustomSubExplorerCommand::GetTitle(_In_opt_ IShellItemArray* items, _Outptr_result_nullonfailure_ PWSTR* name) {
-	*name = nullptr;
+	wil::assign_null_to_opt_param(name);
 	auto title = wil::make_cotaskmem_string_nothrow(_title.c_str());
 	RETURN_IF_NULL_ALLOC(title);
 	*name = title.release();
@@ -199,8 +201,7 @@ IFACEMETHODIMP CustomSubExplorerCommand::Invoke(_In_opt_ IShellItemArray* select
 			}
 			std::wstring param =PathHelper::simpleFormat(paramView, replacements);
 
-			//TODO 
-			std::wstring workingDirectory{ _working_directory };
+			std::wstring workingDirectory{ _working_directory.find(L"%") == std::string::npos ?_working_directory : wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
 			if (workingDirectory.empty()) {
 				workingDirectory = parentPath;
 			}
@@ -208,12 +209,12 @@ IFACEMETHODIMP CustomSubExplorerCommand::Invoke(_In_opt_ IShellItemArray* select
 				PathHelper::replaceAll(workingDirectory, PARAM_PARENT, replacements[PARAM_PARENT]);
 				PathHelper::replaceAll(workingDirectory, PARAM_PATH0, replacements[PARAM_PATH0]);
 			}
+			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, workingDirectoryPath={}", _title, workingDirectory);
 
-			const auto workingDirectoryPath = wil::ExpandEnvironmentStringsW(workingDirectory.c_str());
-			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, workingDirectoryPath={}", _title, workingDirectoryPath.get());
-			const auto exePath = wil::ExpandEnvironmentStringsW(_exe.c_str());
-			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, exePath={}, param={}", _title, exePath.get(), param);
-			ShellExecute(parent, L"open", exePath.get(), param.c_str(), workingDirectoryPath.get(), _show_window_flag + 1);
+			const std::wstring exePath{ _exe.find(L"%") == std::string::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
+			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, exePath={}, param={}", _title, exePath, param);
+
+			ShellExecute(parent, L"open", exePath.c_str(), param.c_str(), workingDirectory.c_str(), _show_window_flag + 1);
 		}
 	}
 	else if (count > 1 && _accept_multiple_files_flag == FILES_EACH) {
@@ -254,7 +255,7 @@ void CustomSubExplorerCommand::Execute(HWND parent, const std::wstring& path) {
 	std::wstring param = PathHelper::simpleFormat(_param, replacements);
 
 	// TODO
-	std::wstring workingDirectory{ _working_directory };
+	std::wstring workingDirectory{ _working_directory.find(L"%") == std::string::npos?_working_directory:wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
 	if (workingDirectory.empty()) {
 		workingDirectory = file.parent_path().wstring();
 	}
@@ -265,9 +266,8 @@ void CustomSubExplorerCommand::Execute(HWND parent, const std::wstring& path) {
 		PathHelper::replaceAll(workingDirectory, PARAM_PATH0, replacements[PARAM_PATH]);
 	}
 
-	const auto workingDirectoryPath = wil::ExpandEnvironmentStringsW(workingDirectory.c_str());
-	DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, workingDirectoryPath={}", _title, workingDirectoryPath.get());
-	const auto exePath = wil::ExpandEnvironmentStringsW(_exe.c_str());
-	DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, exe={}, param={}", _title, exePath.get(), param);
-	ShellExecute(parent, L"open", exePath.get(), param.c_str(), workingDirectoryPath.get(), _show_window_flag + 1);
+	const std::wstring exePath{ _exe.find(L"%") == std::string::npos? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
+	DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, exe={}, param={}", _title, exePath, param);
+
+	ShellExecute(parent, L"open", exePath.c_str(), param.c_str(), workingDirectory.c_str(), _show_window_flag + 1);
 }
