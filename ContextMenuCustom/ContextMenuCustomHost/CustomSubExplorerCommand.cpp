@@ -131,7 +131,7 @@ bool CustomSubExplorerCommand::Accept(bool multipleFiles, FileType fileType, con
 IFACEMETHODIMP CustomSubExplorerCommand::GetIcon(_In_opt_ IShellItemArray* items, _Outptr_result_nullonfailure_ PWSTR* icon) {
 	wil::assign_null_to_opt_param(icon);
 
-	std::wstring_view iconPath{ m_theme_type == ThemeType::Dark && _icon_dark.empty() ? _icon: _icon_dark };
+	std::wstring_view iconPath{ m_theme_type == ThemeType::Dark && !_icon_dark.empty() ? _icon_dark : _icon };
 	if (iconPath.find(L"%") != std::string::npos)
 	{
 		wil::unique_cotaskmem_string path{};
@@ -201,7 +201,7 @@ IFACEMETHODIMP CustomSubExplorerCommand::Invoke(_In_opt_ IShellItemArray* select
 			}
 			std::wstring param =PathHelper::simpleFormat(paramView, replacements);
 
-			std::wstring workingDirectory{ _working_directory.find(L"%") == std::string::npos ?_working_directory : wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
+			std::wstring workingDirectory{ _working_directory.find(L"%") == std::string::npos ? _working_directory : wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
 			if (workingDirectory.empty()) {
 				workingDirectory = parentPath;
 			}
@@ -255,7 +255,7 @@ void CustomSubExplorerCommand::Execute(HWND parent, const std::wstring& path) {
 	std::wstring param = PathHelper::simpleFormat(_param, replacements);
 
 	// TODO
-	std::wstring workingDirectory{ _working_directory.find(L"%") == std::string::npos?_working_directory:wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
+	std::wstring workingDirectory{ _working_directory.find(L"%") == std::string::npos ? _working_directory : wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
 	if (workingDirectory.empty()) {
 		workingDirectory = file.parent_path().wstring();
 	}
@@ -266,7 +266,7 @@ void CustomSubExplorerCommand::Execute(HWND parent, const std::wstring& path) {
 		PathHelper::replaceAll(workingDirectory, PARAM_PATH0, replacements[PARAM_PATH]);
 	}
 
-	const std::wstring exePath{ _exe.find(L"%") == std::string::npos? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
+	const std::wstring exePath{ _exe.find(L"%") == std::string::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
 	DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, exe={}, param={}", _title, exePath, param);
 
 	ShellExecute(parent, L"open", exePath.c_str(), param.c_str(), workingDirectory.c_str(), _show_window_flag + 1);
