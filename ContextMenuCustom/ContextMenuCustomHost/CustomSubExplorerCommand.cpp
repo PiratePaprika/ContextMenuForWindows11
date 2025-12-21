@@ -35,12 +35,31 @@ CustomSubExplorerCommand::CustomSubExplorerCommand(const winrt::hstring& configC
 		_show_window_flag = static_cast<int>(result.GetNamedNumber(L"showWindowFlag", 0));
 		_working_directory = result.GetNamedString(L"workingDirectory", L"");
 
-		//
+		//TODO remove next version
 		if (_accept_file_flag == 0 && _accept_file) {
 			_accept_file_flag = FILE_EXT;
 		}
+		//TODO remove next version
 		if (_accept_directory_flag == 0 && _accept_directory) {
 			_accept_directory_flag = DIRECTORY_DIRECTORY | DIRECTORY_BACKGROUND | DIRECTORY_DESKTOP;
+		}
+
+		if (_accept_file_flag == FileMatchFlagEnum::FILE_EXT2 && !_accept_exts.empty()) {
+			std::wstring_view acceptExtsView{ _accept_exts };
+
+			for (std::size_t start = 0; start <= acceptExtsView.size ();)
+			{
+				const auto pos = acceptExtsView.find(L'|', start);
+				const auto last = pos == std::wstring_view::npos;
+				std::wstring_view token = last ? acceptExtsView.substr(start) : acceptExtsView.substr(start, pos - start);
+				if (!token.empty ()) {
+					_accept_exts_set.emplace(token);
+				}
+				if (last) {
+					break;
+				}
+				start = pos + 1;
+			}
 		}
 	}
 	catch (winrt::hresult_error const& e)
@@ -80,18 +99,7 @@ bool CustomSubExplorerCommand::Accept(bool multipleFiles, FileType fileType, con
 				return false;
 			}
 
-			const size_t position = _accept_exts.find(ext);
-			if (position != std::string::npos) {
-				//check for .c .cpp
-				const bool isStart = position == 0;
-				const bool isEnd = position + ext.size() == _accept_exts.size();
-				const bool isPrevComma = !isStart && _accept_exts[position - 1] == L'|';
-				const bool isNextComma = !isEnd && _accept_exts[position + ext.size()] == L'|';
-				if ((isStart || isPrevComma) && (isEnd || isNextComma)) {
-					return true;
-				}
-			}
-			return false;
+			return _accept_exts_set.contains(ext);
 		}
 		else if (_accept_file_flag == FileMatchFlagEnum::FILE_REGEX) {
 			DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, file=regex, ext={}", _title, _accept_file_regex);
