@@ -5,6 +5,7 @@
     xmlns:common="using:ContextMenuCustomApp.View.Common"
     xmlns:controls="using:ContextMenuCustomApp.View.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="using:ContextMenuCustomApp.Service.Lang"
     xmlns:local="using:ContextMenuCustomApp.View.Setting"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -193,26 +194,93 @@
                         <controls:SettingItem.ActionContent>
                             <Grid Margin="0,0,4,0" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <local:LanguageOverride Grid.Column="0" HorizontalAlignment="Stretch" />
-                                <HyperlinkButton
-                                    Grid.Column="1"
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <ComboBox
+                                    x:Name="LanguageOverrideComboBox"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Margin="0"
+                                    HorizontalAlignment="Stretch"
+                                    ItemsSource="{x:Bind _viewModel.Languages, Mode=OneWay}"
+                                    PlaceholderText="-">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="lang:LangInfo">
+                                            <TextBlock>
+                                                <Run Text="{x:Bind DisplayName, Mode=OneWay}" />
+                                                <Run Text=" (" />
+                                                <Run Text="{x:Bind FileName, Mode=OneWay}" />
+                                                <Run Text=")" />
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button
+                                    Grid.Column="2"
+                                    Width="56"
                                     Margin="4,0,0,0"
-                                    Background="Transparent"
+                                    Click="{x:Bind _viewModel.LoadLanguages}"
+                                    ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.SettingLanguagesReloadTip}">
+                                    <SymbolIcon Symbol="Refresh" />
+                                </Button>
+
+                                <HyperlinkButton
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="0,4,0,4"
+                                    Padding="4"
+                                    HorizontalAlignment="Left"
                                     Content="{x:Bind _viewModel.AppLang.SettingLanguagesHelp}"
                                     NavigateUri="https://github.com/ikas-mc/ContextMenuForWindows11/wiki/Languages" />
+                                <HyperlinkButton
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="0,4,0,4"
+                                    Padding="4,4,0,4"
+                                    HorizontalAlignment="Left"
+                                    Content="{x:Bind _viewModel.AppLang.SettingLanguagesShare}"
+                                    NavigateUri="https://github.com/ikas-mc/ContextMenuForWindows11/discussions/categories/languages" />
                             </Grid>
                         </controls:SettingItem.ActionContent>
                         <controls:SettingItem.RightContent>
-                            <Button
-                                Width="56"
-                                Margin="4,0"
-                                Click="{x:Bind _viewModel.OpenLanguagesFolder}"
-                                ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.SettingLanguagesFolderOpenTip}">
-                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE838;" />
-                            </Button>
+                            <StackPanel Orientation="Horizontal">
+                                <Button
+                                    Grid.Column="2"
+                                    Width="56"
+                                    Margin="4,0,0,0"
+                                    Click="ExportButton_Click"
+                                    ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.SettingLanguagesExportTip}">
+                                    <SymbolIcon Symbol="Download" />
+                                </Button>
+                                <Button
+                                    Grid.Column="2"
+                                    Width="56"
+                                    Margin="4,0,0,0"
+                                    Click="ImportButton_Click"
+                                    ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.SettingLanguagesImportTip}">
+                                    <SymbolIcon Symbol="Add" />
+                                </Button>
+                            </StackPanel>
+
+                        </controls:SettingItem.RightContent>
+                    </controls:SettingItem>
+
+                    <controls:SettingItem Margin="0,0,0,8" Header="{x:Bind _viewModel.AppLang.SettingLanguagesEnableRtl}">
+                        <controls:SettingItem.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xF2B7;" />
+                        </controls:SettingItem.Icon>
+                        <controls:SettingItem.RightContent>
+                            <ToggleSwitch
+                                Margin="0,4"
+                                IsOn="{x:Bind _viewModel.Settings.RTLEnablded, Mode=TwoWay}"
+                                Style="{ThemeResource ToggleSwitchContentLeft}" />
                         </controls:SettingItem.RightContent>
                     </controls:SettingItem>
 
@@ -259,9 +327,9 @@
                             </Button>
                         </controls:SettingItem.RightContent>
                     </controls:SettingItem>
-                    
+
                     <TextBlock Margin="0,8,0,4" Text="{x:Bind _viewModel.AppLang.SettingOther}" />
-                    
+
                     <controls:SettingItem Margin="0,0,0,8" Header="{x:Bind _viewModel.AppLang.SettingOtherRestart}">
                         <controls:SettingItem.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xF83E;" />

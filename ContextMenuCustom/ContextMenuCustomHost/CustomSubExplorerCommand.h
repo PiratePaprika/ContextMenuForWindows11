@@ -1,6 +1,7 @@
 #pragma once
 #include "BaseExplorerCommand.h"
 #include <string>
+#include <unordered_set>
 
 enum FilesMatchFlagEnum {
 	FILES_OFF = 0,
@@ -25,10 +26,14 @@ enum DirectoryMatchFlagEnum {
 };
 
 constexpr std::wstring_view PARAM_PATH = L"{path}";
+constexpr std::wstring_view PARAM_PATH0 = L"{path0}";
 constexpr std::wstring_view PARAM_NAME = L"{name}";
+constexpr std::wstring_view PARAM_NAME0 = L"{name0}";
 constexpr std::wstring_view PARAM_EXT = L"{extension}";
+constexpr std::wstring_view PARAM_EXT0 = L"{extension0}";
 constexpr std::wstring_view PARAM_PARENT = L"{parent}";
 constexpr std::wstring_view PARAM_NAME_NO_EXT = L"{nameNoExt}";
+constexpr std::wstring_view PARAM_NAME_NO_EXT0 = L"{nameNoExt0}";
 
 class CustomSubExplorerCommand final : public BaseExplorerCommand {
 public:
@@ -57,6 +62,7 @@ private:
 	int _accept_directory_flag;
 	int _show_window_flag;
 	std::wstring _working_directory;
+	std::unordered_set<std::wstring_view> _accept_exts_set;
 
 public:
 	int m_index;

@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: dev-2024
+        ref: dev
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -39,8 +39,13 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         msbuild -t:restore ContextMenuCustom\ContextMenuCustomApp\ContextMenuCustomApp.csproj
+    
+    - name: Update Version Build Number
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        $env:VERSION_BUILD_NUMBER = "${{github.run_number}}"
+        .\update-version.ps1
 
-    # build package
     - name: Build ContextMenuCustomHost
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild ContextMenuCustom\ContextMenuCustomHost\ContextMenuCustomHost.vcxproj /m /p:configuration="release" /p:SolutionDir=../  /p:platform="${{ matrix.platform }}" /p:packageType="${{ matrix.package }}"
@@ -60,10 +65,8 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild ContextMenuCustom\ContextMenuCustomAnyPackage\ContextMenuCustomAnyPackage.wapproj /m /p:configuration="release" /p:platform="${{ matrix.platform }}" /p:AppxBundlePlatforms="${{ matrix.platform }}" /p:UapAppxPackageBuildMode=SideloadOnly /p:PackageCertificateKeyFile="${{github.workspace}}\GitHubActionsWorkflow.pfx" /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxPackageDir="${{github.workspace}}\Packages\"
 
-
     - name: Remove Cert
       run: Remove-Item -path "${{github.workspace}}\GitHubActionsWorkflow.pfx"
-
 
     - name: Upload Packages
       uses: actions/upload-artifact@v4

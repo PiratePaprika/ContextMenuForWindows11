@@ -1,4 +1,5 @@
-﻿using ContextMenuCustomApp.View.Common;
+﻿using ContextMenuCustomApp.Service.Lang;
+using ContextMenuCustomApp.View.Common;
 using System;
 using Windows.ApplicationModel.Core;
 using Windows.Storage.Pickers;
@@ -18,10 +19,13 @@ namespace ContextMenuCustomApp.View.Setting
             NavigationCacheMode = NavigationCacheMode.Required;
             this.InitializeComponent();
             this.RegisterMessageHandler(_viewModel);
+            LanguageOverrideComboBox.SelectionChanged += LanguageOverrideComboBox_SelectionChanged;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            await _viewModel.LoadLanguages();
+            LanguageOverrideComboBox.SelectedItem = _viewModel.GetCurrentLang();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -60,17 +64,36 @@ namespace ContextMenuCustomApp.View.Setting
             }
         }
 
-        private void Back_Click(object sender, RoutedEventArgs e)
+        private async void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Frame.CanGoBack)
+            await _viewModel.ImportLang();
+        }
+
+        private async void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            await _viewModel.ExportLang();
+        }
+
+        private void LanguageOverrideComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox?.SelectedItem is LangInfo langInfo)
             {
-                Frame.GoBack();
+                _viewModel.UpdateLangSetting(langInfo);
             }
         }
 
         private async void RestartAppBtn_Click(object sender, RoutedEventArgs e)
         {
             await CoreApplication.RequestRestartAsync(string.Empty);
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
         }
     }
 }

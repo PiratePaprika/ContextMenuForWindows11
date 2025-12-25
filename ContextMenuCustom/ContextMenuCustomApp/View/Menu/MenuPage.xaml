@@ -76,7 +76,6 @@
                             <FontIcon
                                 Grid.Column="1"
                                 FontFamily="Segoe Fluent Icons"
-                                Foreground="Red"
                                 Glyph="&#xF140;"
                                 Visibility="{Binding Enabled, Converter={StaticResource EqualsVisibilityConverter}, ConverterParameter=False}" />
                         </Grid>
@@ -124,54 +123,26 @@
 
             <Grid Grid.Row="2" Grid.Column="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="144" />
                 </Grid.ColumnDefinitions>
                 <AppBarButton
                     Width="40"
+                    HorizontalAlignment="Left"
                     Click="OpenSetting_Click"
                     Icon="Setting"
                     Label="Setting"
                     LabelPosition="Collapsed"
-                    ToolTipService.ToolTip="Open Setting" />
-                <muxc:TeachingTip
-                    x:Name="CacheTip"
-                    Title=""
-                    CloseButtonContent="{x:Bind _viewModel.AppLang.SettingCacheButtonOk}"
-                    IsLightDismissEnabled="True"
-                    PlacementMargin="4"
-                    PreferredPlacement="Auto"
-                    Target="{x:Bind BuildCacheTipButton}">
-                    <muxc:TeachingTip.Content>
-                        <TextBlock>
-                            <Run Text="{x:Bind _viewModel.AppLang.SettingCacheContent}" />
-                            <LineBreak />
-                            <LineBreak />
-                            <Run Text="{x:Bind _viewModel.AppLang.SettingCacheTime}" />
-                            <LineBreak />
-                            <Run Text="{Binding CacheTime}" />
-                        </TextBlock>
-                    </muxc:TeachingTip.Content>
+                    ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.SettingOpenButtonTips}" />
 
-                </muxc:TeachingTip>
-                <AppBarButton
-                    x:Name="BuildCacheTipButton"
-                    Grid.Column="2"
-                    VerticalAlignment="Center"
-                    Background="{x:Null}"
-                    BorderThickness="0"
-                    Click="BuildCacheTipButton_Click"
-                    Content="{x:Bind _viewModel.AppLang.SettingCache}"
-                    ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.SettingCacheTips}" />
                 <ToggleSwitch
-                    Grid.Column="3"
+                    Grid.Column="1"
                     MinWidth="0"
                     MinHeight="40"
-                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
                     IsOn="{x:Bind _viewModel.CacheEnabled, Mode=TwoWay}"
-                    Style="{ThemeResource ToggleSwitchContentLeft}" />
+                    Style="{ThemeResource ToggleSwitchContentLeft}"
+                    ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.SettingCacheContent}" />
             </Grid>
 
         </Grid>
@@ -255,7 +226,17 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEA86;" />
                         </controls:SettingItem.Icon>
                         <controls:SettingItem.ActionContent>
-                            <TextBox PlaceholderText="&quot;{path}&quot;" Text="{Binding Param, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBox
+                                    Grid.Row="0"
+                                    PlaceholderText="{x:Bind _viewModel.AppLang.MenuParamTips}"
+                                    Text="{Binding Param, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="1" FontStyle="Italic" IsTextSelectionEnabled="True">{path} {name} {nameNoExt} {parent} {extension} </TextBlock>
+                            </Grid>
                         </controls:SettingItem.ActionContent>
 
                     </controls:SettingItem>
@@ -397,21 +378,31 @@
                         </controls:SettingItem.RightContent>
 
                         <controls:SettingItem.BottomContent>
-                            <StackPanel Orientation="Vertical">
+
+
+                            <Grid Visibility="{Binding AcceptMultipleFilesFlag, Converter={StaticResource EqualsVisibilityConverter}, ConverterParameter=2}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
                                 <TextBox
+                                    Grid.Row="0"
                                     Header="{x:Bind _viewModel.AppLang.MenuMatchFilesJoinDelimiterTip}"
                                     PlaceholderText="|"
-                                    Text="{Binding PathDelimiter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    Visibility="{Binding AcceptMultipleFilesFlag, Converter={StaticResource EqualsVisibilityConverter}, ConverterParameter=2}" />
+                                    Text="{Binding PathDelimiter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                                 <TextBox
+                                    Grid.Row="1"
                                     Margin="0,8,0,0"
                                     Header="{x:Bind _viewModel.AppLang.MenuMatchFilesJoinParamTip}"
                                     PlaceholderText="{}{path}"
                                     Text="{Binding ParamForMultipleFiles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     Visibility="{Binding AcceptMultipleFilesFlag, Converter={StaticResource EqualsVisibilityConverter}, ConverterParameter=2}" />
 
-                            </StackPanel>
+                                <TextBlock Grid.Row="2" FontStyle="Italic" IsTextSelectionEnabled="True"> {path} {parent} {path0} {name0} {nameNoExt0} {extension0}</TextBlock>
+                            </Grid>
+
                         </controls:SettingItem.BottomContent>
                     </controls:SettingItem>
 
@@ -438,10 +429,14 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xED25;" />
                         </controls:SettingItem.Icon>
                         <controls:SettingItem.ActionContent>
-                            <TextBox
-                                PlaceholderText=""
-                                Text="{Binding WorkingDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.MenuWorkingDirectoryTips}" />
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBox PlaceholderText="{x:Bind _viewModel.AppLang.MenuWorkingDirectoryTips}" Text="{Binding WorkingDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="1" FontStyle="Italic" IsTextSelectionEnabled="True">{parent} {path0}</TextBlock>
+                            </Grid>
                         </controls:SettingItem.ActionContent>
                     </controls:SettingItem>
 
@@ -512,10 +507,12 @@
 
                     <AppBarButton
                         Click="Enable_Click"
-                        Icon="LikeDislike"
                         Label="{x:Bind _viewModel.AppLang.MenuCommandToggleEnabled}"
-                        ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.MenuCommandToggleEnabledTips}" />
-                    <AppBarSeparator />
+                        ToolTipService.ToolTip="{x:Bind _viewModel.AppLang.MenuCommandToggleEnabledTips}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE733;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
 
                     <AppBarButton
                         Click="Delete_Click"
