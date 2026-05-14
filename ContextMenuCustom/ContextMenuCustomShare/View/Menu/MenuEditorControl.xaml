@@ -287,7 +287,7 @@
                             SelectedIndex="{x:Bind MenuItem.AcceptMultipleFilesRuleFlag, Mode=TwoWay}" />
 
                         <TextBox
-                            Grid.Row="0"
+                            Margin="0,8,0,0"
                             Header="{x:Bind _appLang.MenuMatchFilesJoinDelimiterTip}"
                             PlaceholderText="|"
                             Text="{x:Bind MenuItem.PathDelimiter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
