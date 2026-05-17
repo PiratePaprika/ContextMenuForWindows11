@@ -275,12 +275,12 @@ void CustomExplorerCommand::ReadCommands(IShellItemArray* selection, bool multip
 			if (!command->Accept(true, fileType, name, ext)) {
 				continue;
 			}
-
-			winrt::com_ptr<IShellItem> item;
 			DWORD count;
 			if (SUCCEEDED(selection->GetCount(&count)) && count > 0) {
 				bool itemResult = false;
 				for (DWORD i = 0; i < count; i++) {
+					winrt::com_ptr<IShellItem> item;
+					// TODO check error for GetItemAt and GetDisplayName 
 					if (SUCCEEDED(selection->GetItemAt(i, item.put()))) {
 						wil::unique_cotaskmem_string path;
 						if (SUCCEEDED(item->GetDisplayName(SIGDN_FILESYSPATH, path.put()))) {
