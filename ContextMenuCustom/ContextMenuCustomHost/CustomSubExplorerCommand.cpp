@@ -77,18 +77,15 @@ bool CustomSubExplorerCommand::Accept(bool multipleFiles, FileType fileType, con
 	DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, isMultipleFiles={}, fileType={}, fileName={}, fileExt={}", _title, multipleFiles, static_cast<int>(fileType), name, ext);
 
 	if (multipleFiles) {
-		DEBUG_LOG(L"CustomSubExplorerCommand::Accept multiple_files_flag={}", _accept_multiple_files_flag);
 		return _accept_multiple_files_flag == FILES_JOIN || _accept_multiple_files_flag == FILES_EACH;
 	}
 
 	//file
 	if (fileType == FileType::File) {
 		if (_accept_file_flag == FileMatchFlagEnum::FILE_ALL) {
-			DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={},file=all", _title);
 			return true;
 		}
 		else if (_accept_file_flag == FileMatchFlagEnum::FILE_EXT) {
-			DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, file=ext like, ext={}", _title, _accept_exts);
 			if (ext.empty() || _accept_exts.empty()) {
 				return true;
 			}
@@ -98,7 +95,6 @@ bool CustomSubExplorerCommand::Accept(bool multipleFiles, FileType fileType, con
 			return _accept_exts.find(ext) != std::wstring::npos;
 		}
 		else if (_accept_file_flag == FileMatchFlagEnum::FILE_EXT2) {
-			DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, file=ext list, ext={}", _title, _accept_exts);
 			if (ext.empty() || _accept_exts.empty()) {
 				return false;
 			}
@@ -106,33 +102,34 @@ bool CustomSubExplorerCommand::Accept(bool multipleFiles, FileType fileType, con
 			return _accept_exts_set.contains(ext);
 		}
 		else if (_accept_file_flag == FileMatchFlagEnum::FILE_REGEX) {
-			DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, file=regex, ext={}", _title, _accept_file_regex);
 			if (_accept_file_regex.empty()) {
 				return false;
 			}
 
-			const std::wregex fileRegex(_accept_file_regex);
-			return std::regex_match(name.begin(), name.end(), fileRegex);
+			try {
+				const std::wregex fileRegex(_accept_file_regex);
+				return std::regex_match(name.begin(), name.end(), fileRegex);
+			}
+			catch (const std::regex_error& e) {
+				DEBUG_LOG(L"Regex error in Accept: {}", winrt::to_hstring(e.what()).data());
+				return false;
+			}
 		}
 	}
 	//directory
 	else if (fileType == FileType::Directory) {
-		DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, directory=Directory", _title);
 		return (_accept_directory_flag & DIRECTORY_DIRECTORY) == DIRECTORY_DIRECTORY;
 	}
 	//background
 	else if (fileType == FileType::Background) {
-		DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, directory=Background", _title);
 		return  (_accept_directory_flag & DIRECTORY_BACKGROUND) == DIRECTORY_BACKGROUND;
 	}
 	//desktop
 	else if (fileType == FileType::Desktop) {
-		DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, directory=Desktop", _title);
 		return  (_accept_directory_flag & DIRECTORY_DESKTOP) == DIRECTORY_DESKTOP;
 	}
 	//drive
 	else if (fileType == FileType::Drive) {
-		DEBUG_LOG(L"CustomSubExplorerCommand::Accept menu={}, directory=Drive", _title);
 		return  (_accept_directory_flag & DIRECTORY_DRIVE) == DIRECTORY_DRIVE;
 	}
 
@@ -221,10 +218,9 @@ IFACEMETHODIMP CustomSubExplorerCommand::Invoke(_In_opt_ IShellItemArray* select
 				PathHelper::replaceAll(workingDirectory, PARAM_PARENT, replacements[PARAM_PARENT]);
 				PathHelper::replaceAll(workingDirectory, PARAM_PATH0, replacements[PARAM_PATH0]);
 			}
-			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, workingDirectoryPath={}", _title, workingDirectory);
 
 			const std::wstring exePath{ _exe.find(L"%") == std::string::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
-			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, exePath={}, param={}", _title, exePath, param);
+			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, working dir={}, exePath={}, param={}", _title, workingDirectory, exePath, param);
 
 			Execute(parent, exePath, param, workingDirectory);
 		}
@@ -279,7 +275,7 @@ void CustomSubExplorerCommand::DoInvoke(HWND parent, const std::wstring& path) {
 	}
 
 	const std::wstring exePath{ _exe.find(L"%") == std::string::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
-	DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, exe={}, param={}", _title, exePath, param);
+	DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, working dir={}, exePath={}, param={}", _title, workingDirectory, exePath, param);
 
 	Execute(parent, exePath, param, workingDirectory);
 }

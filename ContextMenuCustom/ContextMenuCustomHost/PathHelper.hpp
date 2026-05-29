@@ -92,7 +92,7 @@ public:
 				return paths;
 			}
 		}
-		return std::vector<std::wstring>(0);
+		return {};
 	}
 
 	static void replaceAll(std::wstring& src, const std::wstring_view& from, const std::wstring& to) {
@@ -124,7 +124,7 @@ public:
 		for (size_t i = 0; i < src.size();) {
 			bool replaced = false;
 			for (const auto& [key, value] : replacements) {
-				if (src.substr(i, key.size()) == key) {
+				if (src.compare(i, key.size(), key.data(), key.size()) == 0) {
 					to += value;
 					i += key.size();
 					replaced = true;

@@ -9,7 +9,7 @@ using namespace Microsoft::WRL;
 
 class CustomExplorerCommandEnum final : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IEnumExplorerCommand> {
 public:
-	explicit CustomExplorerCommandEnum(std::vector<ComPtr<CustomSubExplorerCommand>>& commands);
+	explicit CustomExplorerCommandEnum(const std::vector<ComPtr<CustomSubExplorerCommand>>& commands);
 	IFACEMETHODIMP Next(ULONG celt, __out_ecount_part(celt, *pceltFetched) IExplorerCommand** apUICommand, __out_opt ULONG* pceltFetched) override;
 	IFACEMETHODIMP Skip(ULONG /*celt*/) override;
 	IFACEMETHODIMP Reset() override;
