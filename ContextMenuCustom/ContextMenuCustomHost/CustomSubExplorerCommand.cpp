@@ -219,7 +219,7 @@ IFACEMETHODIMP CustomSubExplorerCommand::Invoke(_In_opt_ IShellItemArray* select
 				PathHelper::replaceAll(workingDirectory, PARAM_PATH0, replacements[PARAM_PATH0]);
 			}
 
-			const std::wstring exePath{ _exe.find(L"%") == std::string::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
+			const std::wstring exePath{ _exe.find(L"%") == std::wstring::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
 			DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, working dir={}, exePath={}, param={}", _title, workingDirectory, exePath, param);
 
 			Execute(parent, exePath, param, workingDirectory);
@@ -263,7 +263,7 @@ void CustomSubExplorerCommand::DoInvoke(HWND parent, const std::wstring& path) {
 	std::wstring param = PathHelper::simpleFormat(_param, replacements);
 
 	// TODO
-	std::wstring workingDirectory{ _working_directory.find(L"%") == std::string::npos ? _working_directory : wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
+	std::wstring workingDirectory{ _working_directory.find(L"%") == std::wstring::npos ? _working_directory : wil::ExpandEnvironmentStringsW(_working_directory.c_str()).get() };
 	if (workingDirectory.empty()) {
 		workingDirectory = file.parent_path().wstring();
 	}
@@ -274,7 +274,7 @@ void CustomSubExplorerCommand::DoInvoke(HWND parent, const std::wstring& path) {
 		PathHelper::replaceAll(workingDirectory, PARAM_PATH0, replacements[PARAM_PATH]);
 	}
 
-	const std::wstring exePath{ _exe.find(L"%") == std::string::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
+	const std::wstring exePath{ _exe.find(L"%") == std::wstring::npos ? _exe : wil::ExpandEnvironmentStringsW(_exe.c_str()).get() };
 	DEBUG_LOG(L"CustomSubExplorerCommand::Invoke menu={}, working dir={}, exePath={}, param={}", _title, workingDirectory, exePath, param);
 
 	Execute(parent, exePath, param, workingDirectory);
