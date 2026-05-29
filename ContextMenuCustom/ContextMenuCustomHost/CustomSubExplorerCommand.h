@@ -50,7 +50,7 @@ constexpr std::wstring_view PARAM_NAME_NO_EXT0 = L"{nameNoExt0}";
 
 class CustomSubExplorerCommand final : public BaseExplorerCommand {
 public:
-	CustomSubExplorerCommand(const winrt::hstring& configContent, ThemeType themeType,bool enableEnbug);
+	CustomSubExplorerCommand(const winrt::hstring& configContent, ThemeType themeType, bool enableEnbug);
 	IFACEMETHODIMP GetTitle(_In_opt_ IShellItemArray* items, _Outptr_result_nullonfailure_ PWSTR* name) override;
 	IFACEMETHODIMP GetIcon(_In_opt_ IShellItemArray*, _Outptr_result_nullonfailure_ PWSTR* icon) override;
 	IFACEMETHODIMP GetState(_In_opt_ IShellItemArray* selection, _In_ BOOL okToBeSlow, _Out_ EXPCMDSTATE* cmdState) override;

@@ -7,7 +7,7 @@ CustomExplorerCommandEnum::CustomExplorerCommandEnum(std::vector<ComPtr<CustomSu
 }
 
 IFACEMETHODIMP CustomExplorerCommandEnum::Next(ULONG celt, __out_ecount_part(celt, *pceltFetched) IExplorerCommand** apUICommand, __out_opt ULONG* pceltFetched) {
-	ULONG fetched{0};
+	ULONG fetched{ 0 };
 	wil::assign_to_opt_param(pceltFetched, 0ul);
 
 	const auto size = m_commands.size();
