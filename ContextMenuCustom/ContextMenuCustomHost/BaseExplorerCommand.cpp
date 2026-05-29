@@ -21,19 +21,19 @@ IFACEMETHODIMP BaseExplorerCommand::GetIcon(_In_opt_ IShellItemArray* items, _Ou
 	else {
 		DEBUG_LOG(L"BaseExplorerCommand::GetIcon ,m_theme_type={},custom icon={}", static_cast<int>(m_theme_type), customIcon);
 		std::wstring_view iconPath{ customIcon.data() };
-		if (iconPath.find(L"%") != std::string::npos)
+		if (iconPath.find(L"%") != std::wstring::npos)
 		{
 			wil::unique_cotaskmem_string path{};
 			if (S_OK == wil::ExpandEnvironmentStringsW(iconPath.data(), path))
 			{
-				*icon=path.release();
+				*icon = path.release();
 				return S_OK;
 			}
 		}
 		else if (!iconPath.empty())
 		{
 			auto path{ wil::make_cotaskmem_string(iconPath.data(), iconPath.size()) };
-			*icon=path.release();
+			*icon = path.release();
 			return S_OK;
 		}
 

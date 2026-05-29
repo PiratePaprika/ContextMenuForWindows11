@@ -25,12 +25,12 @@ public:
 	static std::wstring getPath(IShellItemArray* selection) {
 		if (selection) {
 			DWORD count;
-			if (SUCCEEDED(selection->GetCount (&count)) && count > 0) {
+			if (SUCCEEDED(selection->GetCount(&count)) && count > 0) {
 				winrt::com_ptr<IShellItem> item;
 				if (SUCCEEDED(selection->GetItemAt(0, item.put()))) {
 					wil::unique_cotaskmem_string path;
-					if (SUCCEEDED(item->GetDisplayName (SIGDN_FILESYSPATH, path.put ()))) {
-						return std::wstring{path.get()};
+					if (SUCCEEDED(item->GetDisplayName(SIGDN_FILESYSPATH, path.put()))) {
+						return std::wstring{ path.get() };
 					}
 				}
 			}
@@ -41,8 +41,8 @@ public:
 	static std::wstring getPath(IShellItem* item) {
 		if (item) {
 			wil::unique_cotaskmem_string path;
-			if (SUCCEEDED(item->GetDisplayName (SIGDN_FILESYSPATH, path.put ()))) {
-				return std::wstring{path.get()};
+			if (SUCCEEDED(item->GetDisplayName(SIGDN_FILESYSPATH, path.put()))) {
+				return std::wstring{ path.get() };
 			}
 		}
 		return std::wstring{};
@@ -51,7 +51,7 @@ public:
 	static std::wstring getPaths(IShellItemArray* selection, const std::wstring& delimiter) {
 		if (selection) {
 			DWORD count;
-			if (SUCCEEDED(selection->GetCount (&count)) && count > 0) {
+			if (SUCCEEDED(selection->GetCount(&count)) && count > 0) {
 				DWORD i = 0;
 				std::wstringstream pathStream;
 				while (i < count) {
@@ -77,7 +77,7 @@ public:
 	static std::vector<std::wstring> getPathList(IShellItemArray* selection) {
 		if (selection) {
 			DWORD count;
-			if (SUCCEEDED(selection->GetCount (&count)) && count > 0) {
+			if (SUCCEEDED(selection->GetCount(&count)) && count > 0) {
 				std::vector<std::wstring> paths;
 				DWORD i = 0;
 				while (i < count) {
@@ -92,11 +92,11 @@ public:
 				return paths;
 			}
 		}
-		return std::vector<std::wstring>(0);
+		return {};
 	}
 
 	static void replaceAll(std::wstring& src, const std::wstring_view& from, const std::wstring& to) {
-		if (src.empty ()) {
+		if (src.empty()) {
 			return;
 		}
 
@@ -111,22 +111,22 @@ public:
 		}
 	}
 
-	static std::wstring simpleFormat (const std::wstring_view& src, const std::unordered_map<std::wstring_view, std::wstring>& replacements) {
+	static std::wstring simpleFormat(const std::wstring_view& src, const std::unordered_map<std::wstring_view, std::wstring>& replacements) {
 		std::wstring to;
 
 		if (src.empty()) {
 			return to;
 		}
-		if (replacements.empty ()) {
+		if (replacements.empty()) {
 			return to;
 		}
 
-		for (size_t i = 0; i < src.size ();) {
+		for (size_t i = 0; i < src.size();) {
 			bool replaced = false;
 			for (const auto& [key, value] : replacements) {
-				if (src.substr (i, key.size ()) == key) {
+				if (src.compare(i, key.size(), key.data(), key.size()) == 0) {
 					to += value;
-					i += key.size ();
+					i += key.size();
 					replaced = true;
 					break;
 				}

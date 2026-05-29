@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "CustomExplorerCommandEnum.h"
 
-CustomExplorerCommandEnum::CustomExplorerCommandEnum(std::vector<ComPtr<CustomSubExplorerCommand>>& commands) :
+CustomExplorerCommandEnum::CustomExplorerCommandEnum(const std::vector<ComPtr<CustomSubExplorerCommand>>& commands) :
 	m_current(0) {
 	m_commands = commands;
 }
 
 IFACEMETHODIMP CustomExplorerCommandEnum::Next(ULONG celt, __out_ecount_part(celt, *pceltFetched) IExplorerCommand** apUICommand, __out_opt ULONG* pceltFetched) {
-	ULONG fetched{0};
+	ULONG fetched{ 0 };
 	wil::assign_to_opt_param(pceltFetched, 0ul);
 
 	const auto size = m_commands.size();
@@ -15,8 +15,8 @@ IFACEMETHODIMP CustomExplorerCommandEnum::Next(ULONG celt, __out_ecount_part(cel
 		auto current = m_commands.cbegin();
 		current += m_current;
 		while (fetched < celt && m_current < size) {
-			current->CopyTo(&apUICommand[0]);
-			++current;
+			current->CopyTo(&apUICommand[fetched]);
+			current++;
 			m_current++;
 			fetched++;
 		}
@@ -27,7 +27,7 @@ IFACEMETHODIMP CustomExplorerCommandEnum::Next(ULONG celt, __out_ecount_part(cel
 }
 
 IFACEMETHODIMP CustomExplorerCommandEnum::Skip(ULONG celt) {
-	if ((m_current + static_cast<int>(celt)) >= m_commands.size()) {
+	if ((m_current + static_cast<size_t>(celt)) >= m_commands.size()) {
 		return S_FALSE;
 	}
 	m_current += celt;
